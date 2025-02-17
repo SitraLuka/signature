@@ -15,6 +15,7 @@ class Signature extends StatefulWidget {
   const Signature({
     required this.controller,
     Key? key,
+    this.penColor,
     this.backgroundColor = Colors.grey,
     this.dynamicPressureSupported = false,
     this.width,
@@ -29,6 +30,9 @@ class Signature extends StatefulWidget {
 
   /// signature widget height
   final double? height;
+
+  /// color of a signature line
+  final Color? penColor;
 
   /// signature widget background color
   final Color backgroundColor;
@@ -115,7 +119,10 @@ class SignatureState extends State<Signature> {
                 },
                 child: RepaintBoundary(
                   child: CustomPaint(
-                    painter: _SignaturePainter(widget.controller),
+                    painter: _SignaturePainter(
+                      widget.controller,
+                      penColor: widget.penColor,
+                    ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                           minWidth: maxWidth,
@@ -351,6 +358,12 @@ class SignatureController extends ValueNotifier<List<Point>> {
 
   /// check if canvas is not empty (opposite of isEmpty method for convenience)
   bool get isNotEmpty => value.isNotEmpty;
+
+  /// check if there is any action to undo
+  bool get canUndo => _latestActions.isNotEmpty;
+
+  /// check if there is any action to redo
+  bool get canRedo => _revertedActions.isNotEmpty;
 
   /// The biggest x value for all points.
   /// Will return `null` if there are no points.
