@@ -18,6 +18,8 @@ class Signature extends StatefulWidget {
     this.penColor,
     this.backgroundColor = Colors.grey,
     this.dynamicPressureSupported = false,
+    this.border,
+    this.borderRadius,
     this.width,
     this.height,
   }) : super(key: key);
@@ -30,6 +32,12 @@ class Signature extends StatefulWidget {
 
   /// signature widget height
   final double? height;
+
+  /// signature widget border
+  final BoxBorder? border;
+
+  /// signature widget border radius
+  final BorderRadiusGeometry? borderRadius;
 
   /// color of a signature line
   final Color? penColor;
@@ -81,57 +89,62 @@ class SignatureState extends State<Signature> {
           // PARENT WIDGET SIZE
           screenSize = boxConstraints.biggest;
           return Container(
-            decoration: BoxDecoration(color: widget.backgroundColor),
+            decoration: BoxDecoration(
+              color: widget.backgroundColor,
+              border: widget.border,
+              borderRadius: widget.borderRadius,
+            ),
             child: Listener(
-                onPointerDown: (PointerDownEvent event) {
-                  if (!widget.controller.disabled &&
-                      (activePointerId == null ||
-                          activePointerId == event.pointer)) {
-                    activePointerId = event.pointer;
-                    widget.controller.onDrawStart?.call();
-                    _addPoint(event, PointType.tap);
-                  }
-                },
-                onPointerUp: (PointerUpEvent event) {
-                  _ensurePointerCleanup();
-                  if (activePointerId == event.pointer) {
-                    _addPoint(event, PointType.tap);
-                    widget.controller.pushCurrentStateToUndoStack();
-                    widget.controller.onDrawEnd?.call();
-                    activePointerId = null;
-                  }
-                },
-                onPointerCancel: (PointerCancelEvent event) {
-                  _ensurePointerCleanup();
-                  if (activePointerId == event.pointer) {
-                    _addPoint(event, PointType.tap);
-                    widget.controller.pushCurrentStateToUndoStack();
-                    widget.controller.onDrawEnd?.call();
-                    activePointerId = null;
-                  }
-                },
-                onPointerMove: (PointerMoveEvent event) {
-                  _ensurePointerCleanup();
-                  if (activePointerId == event.pointer) {
-                    _addPoint(event, PointType.move);
-                    widget.controller.onDrawMove?.call();
-                  }
-                },
-                child: RepaintBoundary(
-                  child: CustomPaint(
-                    painter: _SignaturePainter(
-                      widget.controller,
-                      penColor: widget.penColor,
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                          minWidth: maxWidth,
-                          minHeight: maxHeight,
-                          maxWidth: maxWidth,
-                          maxHeight: maxHeight),
-                    ),
+              onPointerDown: (PointerDownEvent event) {
+                if (!widget.controller.disabled &&
+                    (activePointerId == null ||
+                        activePointerId == event.pointer)) {
+                  activePointerId = event.pointer;
+                  widget.controller.onDrawStart?.call();
+                  _addPoint(event, PointType.tap);
+                }
+              },
+              onPointerUp: (PointerUpEvent event) {
+                _ensurePointerCleanup();
+                if (activePointerId == event.pointer) {
+                  _addPoint(event, PointType.tap);
+                  widget.controller.pushCurrentStateToUndoStack();
+                  widget.controller.onDrawEnd?.call();
+                  activePointerId = null;
+                }
+              },
+              onPointerCancel: (PointerCancelEvent event) {
+                _ensurePointerCleanup();
+                if (activePointerId == event.pointer) {
+                  _addPoint(event, PointType.tap);
+                  widget.controller.pushCurrentStateToUndoStack();
+                  widget.controller.onDrawEnd?.call();
+                  activePointerId = null;
+                }
+              },
+              onPointerMove: (PointerMoveEvent event) {
+                _ensurePointerCleanup();
+                if (activePointerId == event.pointer) {
+                  _addPoint(event, PointType.move);
+                  widget.controller.onDrawMove?.call();
+                }
+              },
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _SignaturePainter(
+                    widget.controller,
+                    penColor: widget.penColor,
                   ),
-                )),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                        minWidth: maxWidth,
+                        minHeight: maxHeight,
+                        maxWidth: maxWidth,
+                        maxHeight: maxHeight),
+                  ),
+                ),
+              ),
+            ),
           );
         },
       ),
